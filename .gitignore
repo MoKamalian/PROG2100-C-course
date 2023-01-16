@@ -4,3 +4,6 @@
 # ignore all cmake files and directories
 **/cmake-build-debug
 **/CMakeLists.txt
+
+# ignore any CLion configuration directories 
+**/.idea
