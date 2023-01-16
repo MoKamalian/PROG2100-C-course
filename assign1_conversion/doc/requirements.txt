@@ -1,0 +1,15 @@
+PROG2100 - Conversion Assignment: requirements list
+
+
+    1. Reads in C++ file (must have .cpp extension)
+    2. has to convert the < to &lt and > to &gt
+    3. has to add the <PRE> at the very front of the file and
+       </PRE> at the very end of the file
+    4. must output the file to the specified directory as an html file
+    5. must validate that only valid Windows file names are processed
+    6. must ask the user for a file name input and also validate the input
+    7. must have two user defined exception classes
+    8. program must make use of .fail() methods via the stream object
+       handlers
+    9. must implement custom routine to for example replace string
+       with the appropriate tag
