@@ -1,2 +1,6 @@
 # ignore any keynote files 
 **/*.key
+
+# ignore all cmake files and directories
+**/cmake-build-debug
+**/CMakeLists.txt
