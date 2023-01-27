@@ -9,23 +9,29 @@
 #include <fstream>
 #include "../inc/FileStruct.hpp"
 #include "../inc/Processor.hpp"
+#include "../inc/Validation.hpp"
 
-#define VALID_WINDOWS_REGX "^(?!^(PRN|AUX|CLOCK$|NUL|CON|COM\d|LPT\d|..)(..+)?$)[^\x00-\x1f\?:";|/]+$"
+#define VALID_WINDOWS_REGX ".?:(\\[a-zA-Z 0-9]*)*.[a-zA-Z]*.cpp" /* checks for valid input source file */
 #define CHARACTER_REPLACE_REGEX ""
 
 
 using String = std::string;
+using std::cout, std::endl;
 
 int main() {
-
-    /* testing the replacement and writing to file from the processor class */
-    std::vector<String> testVector = {"This is a test", "this is another test"};
+    std::vector<String> testVector = {"#include <iostream>", "cout << x << endl;"};
     FileStruct test(testVector);
 
-    Processor::replace(test, "test", "bubbles");
+    /* testing the replacement and writing to file from the processor class
 
-    std::cout << test.getFileStruct()[0] << std::endl;
-    std::cout << test.getFileStruct()[1] << std::endl;
+
+    Processor::replace(test, "[<]", "&lt");
+    Processor::replace(test, "[>]", "&gt");
+
+    cout << test.getFileStruct()[0] << endl;
+    cout << test.getFileStruct()[1] << endl;
+
+    */
 
     /* writing to file: output file is automatically written to directory where
      * program was called */
@@ -35,14 +41,15 @@ int main() {
 
     output.close();
 
+    String testInput = "C:\\Documents\\FileInput.cpp";
+    String windowsRegex = VALID_WINDOWS_REGX;
+
+    cout << (Validation::validateInput(testInput, windowsRegex) ? "true" : "false") << endl;
 
     return 0;
 }
 
 
-//TODO:: create the file struct
-//TODO:: write the processor class
-    //TODO:: processor takes in reference to file struct obj and modifies the text
 //TODO:: write the validation class
     //TODO:: need validation for file names
     //TODO:: need validation for proper Windows file format (?)
