@@ -17,6 +17,7 @@
  */
 
 #include <iostream>
+#include <utility>
 #include <vector>
 #include "File.hpp"
 
@@ -26,6 +27,10 @@ private:
     std::vector<std::string> lines;
 
 public:
+    explicit FileStruct(std::vector<std::string> lines) : lines{std::move(lines)} {};
+    FileStruct() = delete;
+    ~FileStruct() = default;
+
     std::vector<std::string>& getFileStruct() override {
         return this->lines;
     };

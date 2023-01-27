@@ -7,16 +7,10 @@
 #include "../inc/Processor.hpp"
 
 
-void Processor::replace(File& fileStruct) {
+void Processor::replace(File& fileStruct, const std::string& regex_pattern, const std::string& replacement) {
     for(std::string& line : fileStruct.getFileStruct()) {
-        for(char& c : line) {
-            if(c == '>') {
-                // replace with &gt
-            } else if(c == '<') {
-                // replace with &lt
-            }
-        } /* next char in line */
-    } /* next line */
+        line = std::regex_replace(line, std::regex(regex_pattern), replacement);
+    }
 };
 
 void Processor::writeContentToFile(File& fileStruct, std::fstream handler) {

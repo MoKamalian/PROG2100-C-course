@@ -19,15 +19,15 @@
  */
 
 #include <iostream>
+#include <regex>
 #include <fstream>
 #include "File.hpp"
 
 class Processor {
-
 public:
     Processor() = delete;
 
-    static void replace(File& fileStruct);
+    static void replace(File& fileStruct, const std::string& regex_pattern, const std::string& replacement);
     static void writeContentToFile(File& fileStruct, std::fstream handler);
 
 };

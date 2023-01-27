@@ -24,7 +24,7 @@
 class File {
 
 public:
-    virtual std::vector<std::string>& getFileStruct();
+    virtual std::vector<std::string>& getFileStruct() = 0;
 
 };
 
