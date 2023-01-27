@@ -13,8 +13,13 @@ void Processor::replace(File& fileStruct, const std::string& regex_pattern, cons
     }
 };
 
-void Processor::writeContentToFile(File& fileStruct, std::fstream handler) {
-
+void Processor::writeContentToFile(File& fileStruct, std::ofstream& handler) {
+    handler << "\\<PRE>";
+    for(std::string& line : fileStruct.getFileStruct()) {
+        handler << line;
+        handler << "\n";
+    }
+    handler << "\\</PRE>";
 };
 
 
