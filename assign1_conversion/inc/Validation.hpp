@@ -13,6 +13,7 @@
 #ifndef VALIDATION
 #define VALIDATION
 
+
 #include <iostream>
 #include <regex>
 
@@ -24,9 +25,6 @@ public:
     static bool validateInput(const std::string& filePattern, const std::string& regexPattern);
 
 };
-
-
-
 
 
 #endif

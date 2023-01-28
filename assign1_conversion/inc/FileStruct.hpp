@@ -35,6 +35,13 @@ public:
         return this->lines;
     };
 
+    /* foreach method requires function pointer as input */
+    void forEach(void (*function)(std::string line)) {
+        for(std::string& line : this->lines) {
+            function(line);
+        }
+    };
+
 };
 
 
