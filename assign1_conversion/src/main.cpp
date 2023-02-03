@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <vector>
+#include <exception>
 #include "../inc/FileStruct.hpp"
 #include "../inc/Processor.hpp"
 #include "../inc/Validation.hpp"
@@ -17,7 +18,13 @@
 
 
 using String = std::string;
-using std::cout, std::endl, std::cin;
+using std::cin;
+
+/* utility function for printing */
+void print(const String& str) {
+    std::cout << str << std::endl;
+};
+
 
 int main() {
 
@@ -31,7 +38,7 @@ int main() {
     while(!exit) {
 
         /* input collection and validation */
-        cout << "Please enter the full path of the input source file or 'q' to quit [must have .cpp extension]: ";
+        print("Please enter the full path of the input source file or 'q' to quit [must have .cpp extension]: ");
         std::getline(cin, line);
         if(line == "q") { /* user quit the program */
             exit = true;
@@ -42,7 +49,7 @@ int main() {
                     throw WindowsFileException();
                 }
             } catch(WindowsFileException& wfe) {
-                cout << wfe.what() << endl;
+                print(wfe.what());
             }
         }
 
@@ -54,7 +61,7 @@ int main() {
                 throw std::ios_base::failure("[file note found]");
             }
         } catch(std::ios_base::failure& fnf) {
-            cout << fnf.what() << endl;
+            print(fnf.what());
         }
 
         /* reading the source file */
@@ -70,7 +77,15 @@ int main() {
         Processor::replace(sourceFile, REPLACE_GT, "&gt");
 
         /* writing contents to output html file */
-        Processor::writeContentToFile(sourceFile, writeFile);
+        try {
+            if(writeFile.fail()) {
+                throw std::exception();
+            } else {
+                Processor::writeContentToFile(sourceFile, writeFile);
+            }
+        } catch(std::exception& e) {
+            print(e.what());
+        }
 
         exit = true;
     }
