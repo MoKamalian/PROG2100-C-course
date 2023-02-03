@@ -6,15 +6,13 @@
 
 #include <iostream>
 #include <vector>
-#include <fstream>
-#include <exception>
 #include "../inc/FileStruct.hpp"
 #include "../inc/Processor.hpp"
 #include "../inc/Validation.hpp"
 #include "../inc/WindowsFileException.hpp"
 
-#define VALID_WINDOWS_REGEX ".?:(\\\\[a-zA-Z 0-9]*)*.[a-zA-Z]*.cpp" /* checks for valid input source file */
-#define REPLACE_LT "[<]"
+#define VALID_WINDOWS_REGEX ".?:(\\\\[a-zA-Z 0-9]*)*.[a-zA-Z]*.cpp" /* checks for valid input of source file */
+#define REPLACE_LT "[<]" /* text to replace so that it can be displayed in html */
 #define REPLACE_GT "[>]"
 
 
@@ -23,10 +21,11 @@ using std::cout, std::endl, std::cin;
 
 int main() {
 
-    /* main program loop */
+    /* file handlers used for reading and writing */
     std::ifstream readFile;
     std::ofstream writeFile("output.html");
 
+    /* main program loop */
     String line;
     bool exit = false;
     while(!exit) {
@@ -34,11 +33,11 @@ int main() {
         /* input collection and validation */
         cout << "Please enter the full path of the input source file or 'q' to quit [must have .cpp extension]: ";
         std::getline(cin, line);
-        if(line == "q") {
+        if(line == "q") { /* user quit the program */
             exit = true;
             continue;
         } else {
-            try { /* I would not do this normally */
+            try { /* I would not do this normally; exception thrown when file pattern does not match VALID_WINDOWS_REGEX */
                 if(!Validation::validateInput(line, VALID_WINDOWS_REGEX)) {
                     throw WindowsFileException();
                 }
@@ -47,7 +46,8 @@ int main() {
             }
         }
 
-        /* check if the source file exists */
+        /* check if the source file exists; throws ios_base::failure exception if
+         * it fails to read the file */
         readFile.open(line);
         try {
             if(readFile.fail()) {
@@ -69,6 +69,7 @@ int main() {
         Processor::replace(sourceFile, REPLACE_LT, "&lt");
         Processor::replace(sourceFile, REPLACE_GT, "&gt");
 
+        /* writing contents to output html file */
         Processor::writeContentToFile(sourceFile, writeFile);
 
         exit = true;
@@ -76,7 +77,6 @@ int main() {
 
     writeFile.close();
     readFile.close();
-
 
     return 0;
 }
