@@ -5,8 +5,10 @@
  */
 
 /*
- * This is the validation class used to ensure a valid Windows .cpp
- * source file is given as the input.
+ * This validation class is used to validate
+ * a specific file pattern depending on the given regex
+ *
+ * Note: cannot instantiate from this class
  *
  */
 
@@ -22,6 +24,7 @@ class Validation {
 public:
     Validation() = delete;
 
+    /* validates the filePattern against regexPattern passed in */
     static bool validateInput(const std::string& filePattern, const std::string& regexPattern);
 
 };

@@ -51,7 +51,7 @@ public:
         {
             stream << course;
         });
-        
+
     };
 
 

@@ -10,14 +10,15 @@
 
 /* data struct that will be used to store the lines
  * of the input file.
- *      - each line is stored as a row inside a
- *        2D vector
+ *      - each line is stored as a string element
  *      - the file struct implements from File
  *        interface.
+ *      - There is no setter involved for this class
+ *        once the file has been read, more lines
+ *        cannot be added.
  */
 
 #include <iostream>
-#include <utility>
 #include <vector>
 #include "File.hpp"
 
@@ -28,9 +29,10 @@ private:
 
 public:
     explicit FileStruct(std::vector<std::string> lines) : lines{std::move(lines)} {};
-    FileStruct() = delete;
+    FileStruct() = delete; /* you must provide the string lines when instantiating */
     ~FileStruct() = default;
 
+    /* getter */
     std::vector<std::string>& getFileStruct() override {
         return this->lines;
     };
