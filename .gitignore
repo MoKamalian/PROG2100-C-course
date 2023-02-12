@@ -7,3 +7,6 @@
 
 # ignore any CLion configuration directories 
 **/.idea
+
+# other 
+**/.DS_Store
