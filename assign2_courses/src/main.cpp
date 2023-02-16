@@ -8,11 +8,13 @@
 
 
 #include <iostream>
+#include "../include/Student.h++"
 
 int main() {
 
+    Student st;
 
 
-    std::cout << "Hello, World!" << std::endl;
+
     return 0;
 }

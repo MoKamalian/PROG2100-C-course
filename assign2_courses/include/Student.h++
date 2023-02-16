@@ -12,6 +12,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <cstring>
 
 
 class Student {
@@ -20,8 +21,11 @@ private:
     int numCourses;
     std::string* courseList = new std::string[0];
 
+    /* resizes the courseList array by one */
+    void resize();
+
 public:
-    Student() = delete; /* student requires full name and number of courses */
+    Student() = default; /* student requires full name and number of courses */
     Student(Student& s) = delete; /* cannot set a student to another student */
     ~Student() = default;
 
@@ -33,10 +37,7 @@ public:
     void setName(std::string fname) { this->full_name = std::move(fname); };
 
     /* adding courses to the course list */
-    void addCourse(std::string courseName);
-
-    /* outputs the  full listing of courses and name of student */
-    std::string toString();
+    void addCourse(std::string& courseName);
 
     /* empties the course list and sets number of course to 0 */
     void purgeCourses();
