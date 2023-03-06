@@ -28,8 +28,8 @@ public:
      * @param _fname - the full name of the student.  Note, no validation is done here for the name.
      * @return A student object that may or may not contain courses at time of instantiation.
      * */
-    Student() = default;
-    Student(std::string _fname) : full_name{std::move(_fname)} { /**/ };
+    Student() { std::cout << "Default constructor called" << std::endl; };
+    explicit Student(std::string _fname);
     Student(Student& s);
     Student(Student&& s) = default;
     ~Student();
@@ -37,17 +37,20 @@ public:
     /** getters and setters */
     [[nodiscard]] int getNumCourses() const { return (this->num_courses - 1); };
 
-    [[nodiscard]] const std::string& getFullName() { return this->full_name; };
+    [[nodiscard]] const std::string& getFullName() const { return this->full_name; };
 
     [[nodiscard("Courses array")]] const std::string* getCourseList() const { return this->course_list; };
 
     void setName(std::string fname) { this->full_name = std::move(fname); };
 
     /** adding courses to the course list */
-    void addCourse(std::string& course_name);
+    void addCourse(std::string course_name);
 
     /** empties the course list and sets number of course to 0 */
     void purgeCourses();
+
+    /** This to string method will output the students name and courses */
+    [[nodiscard("Object description")]] std::string toString() const;
 
     /** operator overloads */
     friend std::ostream& operator<<(std::ostream& stream, const Student& student) {
@@ -64,7 +67,9 @@ public:
         return stream;
     };
 
-    /* = sign operator overload needed */
+    Student& operator=(const Student& st);
+
+
 
 };
 
