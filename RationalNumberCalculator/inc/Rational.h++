@@ -25,6 +25,10 @@ private:
     int _nu = 0;
     int _de = 1;
 
+    /** The two functions used to simplify the fraction to its lowest common denominator */
+    void _simplify_(int& i, int& j);
+    static int _GCD_(int i, int j);
+
 public:
     explicit Rational(); //initialize 0/1
     explicit Rational(int _wn); //for whole numbers (example: 5/1)
@@ -32,6 +36,10 @@ public:
     explicit Rational(std::string _rn); // must parse string
     Rational(Rational& r) = default;
     ~Rational() = default;
+
+
+    /** reduces _nu and _de to their lowest form */
+    void reduceRational();
 
 
     /** validator method for rational and whole numbers */
@@ -49,24 +57,24 @@ public:
 
 
     /** operator overloads */
-    Rational& operator+(Rational& r);
+    Rational operator+(Rational& r);
 
-    Rational& operator-(Rational& r);
+    Rational operator-(Rational& r);
 
-    Rational& operator*(Rational& r);
+    Rational operator*(Rational& r);
 
-    Rational& operator/(Rational& r);
+    Rational operator/(Rational& r);
 
 
     /** comparison operator overloads */
-    bool operator<(Rational& r);
+    bool operator<(const Rational& r) const;
 
-    bool operator>(Rational& r);
+    bool operator>(const Rational& r) const;
 
-    bool operator==(Rational& r);
+    bool operator==(const Rational& r) const;
 
 
-    /** output operator overloads */
+    /** output operator overload */
     friend std::ostream& operator<<(std::ostream& stream, Rational& r);
 
 
@@ -75,9 +83,6 @@ public:
 
 
 #endif
-
-
-
 
 
 
