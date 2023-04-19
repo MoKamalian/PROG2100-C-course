@@ -38,12 +38,20 @@ public:
 
     /** methods associated with zombie life cycle
     * i.e. starvation, breeding spawning */
-    int updateStarve();
+    int updateStarve() override;
 
-    int updateSpawn();
+    int getSurviveCount() const;
+
+    void resetStarveCount() override;
+
+    int updateSpawn() override;
+
+    void resetSpawnCount() override;
+
+    int getSpawnCount() const override;
 
     [[nodiscard("Zombie Object")]]
-    std::unique_ptr<ISpecies> spawn() override;
+    ISpecies* spawn() override;
 
     /** getters and setters */
     [[nodiscard("Contains position on grid")]]

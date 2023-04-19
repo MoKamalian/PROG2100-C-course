@@ -35,9 +35,9 @@ void Human::move(int x, int y) {
 };
 
 /** Spawn another human within game bounds */
-std::unique_ptr<ISpecies> Human::spawn() {
+ISpecies* Human::spawn() {
     Human* h = new Human();
-    return std::unique_ptr<ISpecies>(h);
+    return h;
 };
 
 
@@ -66,13 +66,21 @@ bool Human::getMoveStatus() const {
 };
 
 /** updates the survival count of the human object */
-int Human::updateSurvive() noexcept {
+int Human::updateStarve() noexcept {
     return this->survive_count++;
 };
 
 /** resets the survival count back to 0 */
-int Human::resetSurvive() noexcept {
-    return this->survive_count = 0;
+void Human::resetStarveCount() {
+    this->survive_count = 0;
+};
+
+int Human::getSurviveCount() const {
+    return this->survive_count;
+};
+
+int Human::getSpawnCount() const {
+    return -1;
 };
 
 

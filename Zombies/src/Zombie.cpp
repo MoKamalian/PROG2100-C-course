@@ -49,20 +49,36 @@ int Zombie::updateStarve() {
     return this->starve_count++;
 };
 
+void Zombie::resetStarveCount() {
+    this->starve_count = 0;
+}
+
+int Zombie::getSurviveCount() const {
+    return this->starve_count; // if not eaten in 3 steps, starve
+};
+
 /** updates the spawn count by one
  * @returns the spawn count that can be used to
  * determine if a new zombie should be spawned */
 int Zombie::updateSpawn() {
-    return this->spawn_count++;
+    return this->spawn_count++; // if survived for 8 steps, spawn another zombie
+};
+
+void Zombie::resetSpawnCount() {
+    this->spawn_count = 0;
+};
+
+int Zombie::getSpawnCount() const {
+    return this->spawn_count;
 };
 
 /** Spawn another zombie object on heap
  * @note Spawned zombie is not initialized
  * with grid coordinates.  This must be set
  * after spawning of the zombie. */
-std::unique_ptr<ISpecies> Zombie::spawn() {
+ISpecies* Zombie::spawn() {
     Zombie* _z = new Zombie();
-    return std::unique_ptr<ISpecies>(_z);
+    return _z;
 };
 
 

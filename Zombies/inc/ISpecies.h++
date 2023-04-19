@@ -17,7 +17,8 @@ public:
     virtual std::string toString() = 0;
     virtual void print() = 0;
     virtual void move(int x, int y) = 0;
-    virtual std::unique_ptr<ISpecies> spawn() = 0;
+    virtual ISpecies* spawn() = 0;
+    virtual void setPosition(int x, int y) = 0;
 };
 
 

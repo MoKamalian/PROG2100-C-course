@@ -30,7 +30,7 @@ public:
     std::string toString() override;
     void print() override;
     void move(int x, int y) override;
-    std::unique_ptr<ISpecies> spawn() override;
+    ISpecies* spawn() override;
 
     /** getters and setters */
     [[nodiscard]]
@@ -44,8 +44,13 @@ public:
     bool resetMove() override;
 
     /** methods to keep track of the survival count of the human object */
-    int updateSurvive() noexcept;
-    int resetSurvive() noexcept;
+    int updateStarve() noexcept override;
+    int getSurviveCount() const override;
+
+    int getSpawnCount() const override;
+    void resetSpawnCount() override {};
+    int updateSpawn() override {};
+    void resetStarveCount() override;
 
 };
 
