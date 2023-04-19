@@ -17,7 +17,7 @@ Human::Human(int _w, int _h) : survive_count{0}, Organism(_w, _h) {
 
 /** print to console */
 void Human::print() {
-    std::cout << "\033[48;5;211m"; // background
+    std::cout << "\033[48;5;100m"; // background
     std::cout << "\033[38;5;15m" << " H " << "\033[0m"; // foreground and reset
 };
 

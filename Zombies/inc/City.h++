@@ -136,7 +136,7 @@ bool City<H, W>::checkBounds(int x, int y) const noexcept {
  * @param y: the y coordinate
  * @return An organism that conforms to ISpecies.  */
 template<int H, int W>
-std::optional<ISpecies*> City<H, W>::getOrganism(int x, int y) const {
+std::optional<ISpecies*> City<H, W>::getOrganism(int x, int y) {
     if(!this->checkBounds(x, y)) {
         return std::nullopt; /// not within bounds
     } else {

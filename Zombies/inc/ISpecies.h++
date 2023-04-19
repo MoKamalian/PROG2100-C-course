@@ -19,6 +19,8 @@ public:
     virtual void move(int x, int y) = 0;
     virtual ISpecies* spawn() = 0;
     virtual void setPosition(int x, int y) = 0;
+    virtual bool resetMove() = 0;
+    virtual std::pair<unsigned int, unsigned int> getPosition() const  = 0;
 };
 
 

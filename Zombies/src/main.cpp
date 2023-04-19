@@ -22,6 +22,8 @@
 #define ZOMBIE_SPAWN_LIMIT 8
 #define STARVE_COUNT 3
 #define HUMAN_SPAWN_LIMIT 3
+#define HUMANS 3
+#define ZOMBIES 0
 
 
 using std::cout, std::endl;
@@ -66,55 +68,50 @@ std::optional<coordinate> findHumanIn(T& grid, coordinate_pairs valids);
 template<typename T>
 void populateCity(T& grid, int numZombies, int numHumans);
 
+/** resets the move variable for all grid occupants */
+template<typename T>
+void resetMoveState(T& grid);
+
+/** checks the state of the grid to determine if it there is at least one of
+ * each species on the grid */
+template<typename T>
+bool checkGridState(T& grid);
+
 
 int main() {
     /** main loop of the program */
+    City grid = City<5, 5>();
+    populateCity(grid, ZOMBIES, HUMANS);
+    std::chrono::seconds interval(3);
 
+    bool exit_program = false;
+    while(!exit_program) {
+        if(!checkGridState(grid)) {
+            exit_program = true;
+            break;
+        }
 
-    City grid = City<20, 20>();
-    Zombie z1 = Zombie();
-    Zombie z2 = Zombie();
-    Human h1 = Human();
+        for(int i=0; i<grid.getHeight(); i++) {
+            for(int j=0; j<grid.getWidth(); j++) {
+                if(grid.getOrganism(i, j) != std::nullopt) {
 
-    grid.insert(&z1, 5, 5);
-    z1.setPosition(5, 5);
+                    updateGrid(grid, (*grid.getOrganism(i, j).value()));
 
-    grid.insert(&h1, 6, 6);
-    h1.setPosition(6, 6);
+                }
+            }
+        }
 
-    grid.insert(&z2, 3, 4);
-    z2.setPosition(3, 4);
+        cout << grid << endl;
 
-    cout << grid << endl;
-
-    coordinate coord = coordinate(5, 5);
-    coordinate h_coord = coordinate(6, 6);
-
-    coordinate_pairs valids = returnValidsForZombie(grid, coord);
-    coordinate_pairs h_valids = returnValidsForHuman(grid,  h_coord);
-
-    for(coordinate pairs : valids) {
-        cout << pairs.first << " " << pairs.second << endl;
-    }
-
-
-    performMoveForZombie(grid, z1, valids);
-    performMoveForHuman(grid, h1, h_valids);
-
-    cout << grid << endl;
+        std::this_thread::sleep_for(interval);
+        resetMoveState(grid);
+    };
 
     return 0;
 };
 
 
 /** implementations */
-/** populates the city grid with the appropriate number of zombies and humans
- * @param grid: grid to be populated
- * @param numZombies: the number of zombies to populate
- * @param numHumans: the number of humans to populate */
-template<typename T>
-void populateCity(T& grid, int numZombies, int numHumans);
-
 /** updates the grid by performing moves for zombie and human accordingly
  * @param grid: grid to perform the moves, 2D vector
  * @param organism: the organism to perform the move upon */
@@ -124,13 +121,9 @@ void updateGrid(T& grid, Organism& organism) {
         coordinate_pairs valid_coordinates = findValidCoordinate(grid, organism.getPosition(), returnValidsForHuman);
         performMoveForHuman(grid, organism, valid_coordinates);
 
-
-
     } else if(organism.toString() == "Z") {
         coordinate_pairs valid_coordinates = findValidCoordinate(grid, organism.getPosition(), returnValidsForZombie);
         performMoveForZombie(grid, organism, valid_coordinates);
-
-
 
     }
 
@@ -143,139 +136,6 @@ template<typename T, typename F>
 coordinate_pairs findValidCoordinate(T& grid, coordinate pos, F&& _func) {
     return _func(grid, pos);
 };
-
-
-
-/** performs a move operation for a Zombie object */
-template<typename T>
-void performMoveForZombie(T& grid, Organism& organism, coordinate_pairs& valid_pairs) {
-    if(!organism.getMoveStatus()) {
-        if(!valid_pairs.empty()) {
-            coordinate old_coord = organism.getPosition();
-            int range = valid_pairs.size();
-            std::optional<coordinate> c = findHumanIn(grid, valid_pairs);
-
-            if (organism.getSpawnCount() <= ZOMBIE_SPAWN_LIMIT) {
-
-                if (organism.getSurviveCount() >= STARVE_COUNT) {
-                    /* zombie starves, clear the position */
-                    grid.clearPosition(old_coord.first, old_coord.second);
-
-                } else if (c != std::nullopt) { /* if theres a human present, eat it */
-                    int x = c.value().first;
-                    int y = c.value().second;
-
-                    grid.moveInto(&organism, x, y);
-                    organism.setPosition(x, y);
-                    organism.didMove();
-                    organism.resetStarveCount();
-
-                    grid.clearPosition(old_coord.first, old_coord.second);
-
-                } else {
-                    /* if no human is present to eat, move to a random empty spot */
-                    int move_position = generateRandom(0, range - 1);
-                    int x = valid_pairs[move_position].first;
-                    int y = valid_pairs[move_position].second;
-
-                    grid.moveInto(&organism, x, y);
-                    organism.setPosition(x, y);
-                    organism.didMove();
-                    organism.updateStarve();
-
-                    grid.clearPosition(old_coord.first, old_coord.second);
-
-                }
-            } else {
-                /* spawn another zombie in a clear position */
-                if (!valid_pairs.empty()) {
-                    int move_position = generateRandom(0, range);
-                    int x = valid_pairs[move_position].first;
-                    int y = valid_pairs[move_position].second;
-
-                    ISpecies *new_zombie = organism.spawn();
-                    new_zombie->setPosition(x, y);
-
-                    grid.moveInto(new_zombie, x, y);
-
-                    organism.resetSpawnCount();
-                    organism.resetStarveCount();
-                }
-            }
-        }
-    }
-};
-
-/** performs a move operation for a Human object */
-template<typename T>
-void performMoveForHuman(T& grid, Organism& organism, coordinate_pairs& valid_pairs) {
-    if(!organism.getMoveStatus()) {
-        if (!valid_pairs.empty()) {
-            coordinate old_coord = organism.getPosition();
-            if (organism.getSurviveCount() <= HUMAN_SPAWN_LIMIT) {
-                /* */
-                int rand = generateRandom(0, (int) valid_pairs.size() - 1);
-                int x = valid_pairs[rand].first;
-                int y = valid_pairs[rand].second;
-                organism.updateSpawn();
-
-                grid.moveInto(&organism, x, y);
-                organism.setPosition(x, y);
-                organism.didMove();
-
-                grid.clearPosition(old_coord.first, old_coord.second);
-
-            } else if (organism.getSurviveCount() >= HUMAN_SPAWN_LIMIT) {
-                /* if human survives more than three rounds create new human */
-                int rand = generateRandom(0, (int) valid_pairs.size() - 1);
-                int x = valid_pairs[rand].first;
-                int y = valid_pairs[rand].second;
-
-                ISpecies* new_human = organism.spawn();
-                new_human->setPosition(x, y);
-
-                grid.moveInto(new_human, x, y);
-
-            }
-        }
-    }
-};
-
-/** this function is used to determine which coordinate contains a human
- * from list of valid coordinates */
-template<typename T>
-std::optional<coordinate> findHumanIn(T& grid, coordinate_pairs valids) {
-
-    for(int i=0; i<valids.size(); i++) {
-
-        coordinate c = valids[i];
-        if(grid.getOrganism(c.first, c.second) != std::nullopt) {
-
-            if(grid.getOrganism(c.first, c.second).value()->toString() == "H") {
-
-                return std::optional<coordinate>{c};
-
-            }
-        }
-    }
-
-    return std::nullopt;
-};
-
-
-
-/** generates a random within a following range
- * @param begin: start of the range, inclusive
- * @param end: end of the range, exclusive
- * @returns a single integer value within range */
-int generateRandom(int begin, int end) {
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dist(begin, end);
-
-    return dist(gen);
-};
-
 
 
 /** returns the valid coordinates for Zombie
@@ -444,6 +304,8 @@ coordinate_pairs returnValidsForZombie(T& grid, coordinate coord) {
     return valids;
 };
 
+
+
 /** returns the valid coordinates for Human.
  * @param grid: the grid the Human object belongs to.
  * @param coord: the coordinate the Human object belongs to.
@@ -504,6 +366,224 @@ coordinate_pairs returnValidsForHuman(T& grid, coordinate coord) {
 
     return valids;
 };
+
+
+
+/** performs a move operation for a Zombie object */
+template<typename T>
+void performMoveForZombie(T& grid, Organism& organism, coordinate_pairs& valid_pairs) {
+    if(!organism.getMoveStatus()) {
+        if(!valid_pairs.empty()) {
+            coordinate old_coord = organism.getPosition();
+            int range = valid_pairs.size();
+            std::optional<coordinate> c = findHumanIn(grid, valid_pairs);
+
+            if (organism.getSpawnCount() <= ZOMBIE_SPAWN_LIMIT) {
+
+                if (organism.getSurviveCount() >= STARVE_COUNT) {
+                    /* zombie starves, clear the position */
+                    grid.clearPosition(old_coord.first, old_coord.second);
+
+                } else if (c != std::nullopt) { /* if theres a human present, eat it */
+                    int x = c.value().first;
+                    int y = c.value().second;
+
+                    grid.moveInto(&organism, x, y);
+                    organism.setPosition(x, y);
+                    organism.didMove();
+                    organism.resetStarveCount();
+
+                    grid.clearPosition(old_coord.first, old_coord.second);
+
+                } else {
+                    /* if no human is present to eat, move to a random empty spot */
+                    int move_position = generateRandom(0, range - 1);
+                    int x = valid_pairs[move_position].first;
+                    int y = valid_pairs[move_position].second;
+
+                    grid.moveInto(&organism, x, y);
+                    organism.setPosition(x, y);
+                    organism.didMove();
+                    organism.updateStarve();
+
+                    grid.clearPosition(old_coord.first, old_coord.second);
+
+                }
+            } else {
+                /* spawn another zombie in a clear position */
+                if (!valid_pairs.empty()) {
+                    int move_position = generateRandom(0, range);
+                    int x = valid_pairs[move_position].first;
+                    int y = valid_pairs[move_position].second;
+
+                    ISpecies *new_zombie = organism.spawn();
+                    new_zombie->setPosition(x, y);
+
+                    grid.moveInto(new_zombie, x, y);
+
+                    organism.resetSpawnCount();
+                    organism.resetStarveCount();
+                }
+            }
+        }
+    }
+};
+
+/** performs a move operation for a Human object */
+template<typename T>
+void performMoveForHuman(T& grid, Organism& organism, coordinate_pairs& valid_pairs) {
+    if(!organism.getMoveStatus()) {
+        if (!valid_pairs.empty()) {
+            coordinate old_coord = organism.getPosition();
+            if (organism.getSurviveCount() <= HUMAN_SPAWN_LIMIT) {
+                /* */
+                int rand = generateRandom(0, (int) valid_pairs.size() - 1);
+                int x = valid_pairs[rand].first;
+                int y = valid_pairs[rand].second;
+                organism.updateSpawn();
+
+                grid.moveInto(&organism, x, y);
+                organism.setPosition(x, y);
+                organism.didMove();
+
+                grid.clearPosition(old_coord.first, old_coord.second);
+
+            } else if (organism.getSurviveCount() >= HUMAN_SPAWN_LIMIT) {
+                /* if human survives more than three rounds create new human */
+                int rand = generateRandom(0, (int) valid_pairs.size() - 1);
+                int x = valid_pairs[rand].first;
+                int y = valid_pairs[rand].second;
+
+                ISpecies* new_human = organism.spawn();
+                new_human->setPosition(x, y);
+
+                grid.moveInto(new_human, x, y);
+
+            }
+        }
+    }
+};
+
+
+
+/** generates a random within a following range
+ * @param begin: start of the range, inclusive
+ * @param end: end of the range, exclusive
+ * @returns a single integer value within range */
+int generateRandom(int begin, int end) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dist(begin, end);
+
+    return dist(gen);
+};
+
+
+
+/** this function is used to determine which coordinate contains a human
+ * from list of valid coordinates */
+template<typename T>
+std::optional<coordinate> findHumanIn(T& grid, coordinate_pairs valids) {
+
+    for(int i=0; i<valids.size(); i++) {
+
+        coordinate c = valids[i];
+        if(grid.getOrganism(c.first, c.second) != std::nullopt) {
+
+            if(grid.getOrganism(c.first, c.second).value()->toString() == "H") {
+
+                return std::optional<coordinate>{c};
+
+            }
+        }
+    }
+
+    return std::nullopt;
+};
+
+
+
+/** populates the city grid with the appropriate number of zombies and humans
+ * @param grid: grid to be populated
+ * @param numZombies: the number of zombies to populate
+ * @param numHumans: the number of humans to populate */
+template<typename T>
+void populateCity(T& grid, int numZombies, int numHumans) {
+    if((numHumans + numZombies) > (grid.getWidth() * grid.getHeight())) {
+        return;
+    }
+    /* populate humans first */
+    for(int i = 0; i<numHumans; i++) {
+        create_h:
+        int x = generateRandom(0, grid.getWidth() - 1);
+        int y = generateRandom(0, grid.getHeight() - 1);
+
+        if (grid.checkPosition(x, y)) {
+            Human* _h = new Human(x, y);
+            grid.insert(_h, x, y);
+        } else {
+            goto create_h;
+        }
+    }
+    /* populate zombies */
+    for(int i = 0; i<numZombies; i++) {
+        create_z:
+        int x = generateRandom(0, grid.getWidth() - 1);
+        int y = generateRandom(0, grid.getHeight() - 1);
+
+        if (grid.checkPosition(x, y)) {
+            Zombie* _z = new Zombie(x, y);
+            grid.insert(_z, x, y);
+        } else {
+            goto create_z;
+        }
+    }
+
+};
+
+/** resets the move variable for all grid occupants
+ * @param grid: grid to perform check on */
+template<typename T>
+void resetMoveState(T& grid) {
+    for(int i=0; i<grid.getHeight(); i++) {
+        for(int j=0; j<grid.getWidth(); j++) {
+            if(grid.getOrganism(i, j) != std::nullopt) {
+                grid.getOrganism(i, j).value()->resetMove();
+            }
+        }
+    }
+};
+
+/** checks the state of the grid to determine if it there is at least one of
+ * each species on the grid
+ * @param grid: the grid to perform state check
+ * @returns true if there are both humans and zombies still present on the grid */
+template<typename T>
+bool checkGridState(T& grid) {
+    bool human_present = false;
+    bool zombie_present = false;
+    for(int i=0; i<grid.getHeight(); i++) {
+        for(int j=0; j<grid.getWidth(); j++) {
+            if(grid.getOrganism(i, j) != std::nullopt) {
+
+                if(grid.getOrganism(i, j).value()->toString() == "H")
+                    human_present = true;
+
+                if(grid.getOrganism(i, j).value()->toString() == "Z")
+                    zombie_present = true;
+
+                if(zombie_present && human_present)
+                    return true;
+            }
+        }
+    }
+
+    return false;
+};
+
+
+
+
 
 
 
